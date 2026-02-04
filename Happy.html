@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Root User: H Y ANUSHA</title>
+    <style>
+        body {
+            background-color: #0d0d0d;
+            color: #00ff41;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #terminal {
+            width: 90%;
+            max-width: 950px;
+            height: 85vh;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+            overflow-y: auto;
+            white-space: pre-wrap;
+            position: relative;
+            z-index: 5;
+        }
+
+        #terminal::-webkit-scrollbar { width: 8px; }
+        #terminal::-webkit-scrollbar-thumb { background: #00ff41; border-radius: 4px; }
+        #terminal::-webkit-scrollbar-track { background: #0d0d0d; }
+
+        .line {
+            display: block;
+            margin-bottom: 5px;
+            opacity: 0;
+            animation: fadeIn 0.1s forwards;
+        }
+
+        .input-line { color: #fff; }
+        .prompt { color: #d700ff; font-weight: bold; }
+
+        /* Input styling */
+        #password-input {
+            background: transparent;
+            border: none;
+            color: #fff; 
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            outline: none;
+            width: 200px;
+        }
+
+        /* --- CAKE STYLES --- */
+        .ascii-art {
+            font-size: 10px;
+            line-height: 10px;
+            font-weight: bold;
+            white-space: pre;
+            text-align: center;
+            display: none;
+            margin: 20px 0;
+        }
+
+        .flame { color: #ffeb3b; animation: flicker 0.5s infinite alternate; }
+        .candle { color: #ffffff; }
+        .frosting { color: #87ceeb; }
+        .cherry { color: #ff69b4; }
+        .cake-body { color: #ffb7b2; }
+        .green-text { color: #00ff41; text-shadow: 0 0 5px #00ff41; } /* Neon Green for Age */
+
+        @keyframes flicker { 
+            0% { text-shadow: 0 0 5px #ffeb3b; opacity: 1; }
+            100% { text-shadow: 0 0 15px #ffeb3b; opacity: 0.8; }
+        }
+
+        /* --- GALLERY STYLES --- */
+        .gallery-container {
+            display: none;
+            margin-top: 30px;
+            text-align: center;
+            border-top: 1px dashed #00ff41;
+            padding-top: 20px;
+            padding-bottom: 50px;
+        }
+
+        .gallery-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .photo-frame {
+            border: 2px solid #00ff41;
+            padding: 5px;
+            background: rgba(0, 20, 0, 0.8);
+            width: 200px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: grayscale(80%) contrast(1.2);
+            transition: filter 0.3s ease;
+        }
+
+        .photo-frame:hover img { filter: grayscale(0%) contrast(1); }
+        .photo-frame:hover {
+            box-shadow: 0 0 15px #d700ff;
+            border-color: #d700ff;
+            transform: scale(1.05);
+        }
+
+        .caption { font-size: 12px; margin-top: 5px; color: #00ff41; }
+
+        .cursor::after { content: '▋'; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+        #confetti {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti"></canvas>
+    <div id="terminal"></div>
+
+    <script>
+        const terminal = document.getElementById('terminal');
+        const canvas = document.getElementById('confetti');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // --- PASSWORD CONFIGURATION ---
+        const CORRECT_PASSWORD = "HYYK"; 
+
+        // 1. Initial lines before password
+        const introLines = [
+            { text: "Connecting to secure server... [10.0.0.127]", type: "info" },
+            { text: "Bypassing firewalls...", type: "info" },
+            { text: "Target Found: H Y ANUSHA [Level: 22]", type: "success" },
+            { text: "admin@birthday-sys:~$ sudo initiate_party --target='Anusha'", type: "input" }
+        ];
+
+        // 2. Lines AFTER password is correct
+        const successLines = [
+            { text: "Password accepted.", type: "info" },
+            { text: "Access GRANTED.", type: "success" },
+            { text: "Compiling happiness algorithms...", type: "info" },
+            { text: "Rendering high-res cake assets...", type: "info" },
+            { text: "Executing 'Happy_Birthday_v22.exe'...", type: "info" }
+        ];
+
+        // CAKE ART - UPDATED WITH "LEVEL 22 UNLOCKED"
+        const cakeArt = `
+             <span class="flame"> (</span>   <span class="flame"> )</span>   <span class="flame"> (</span>   <span class="flame"> )</span>
+             <span class="candle"> |</span>   <span class="candle"> |</span>   <span class="candle"> |</span>   <span class="candle"> |</span>
+           <span class="frosting">__|_|___|_|___|_|__</span>
+          <span class="cherry">|vvvvvvvvvvvvvvvvvvv|</span>
+          <span class="cake-body">|  H A P P Y        |</span>
+          <span class="cake-body">|      B - D A Y    |</span>
+          <span class="cherry">|~~~~~~~~~~~~~~~~~~~|</span>
+          <span class="cake-body">|   H Y  A N U S H A|</span>
+          <span class="cake-body">|___________________|</span>
+         <span class="cherry">,;@;@;@;@;@;@;@;@;@;@;@;,</span>
+       <span class="frosting">.;@;@;@;@;@;@;@;@;@;@;@;@;@;.</span>
+     <span class="frosting">,;@;@;@;@;@;@;@;@;@;@;@;@;@;@;@;,</span>
+    <span class="frosting">;@;@;@;@;@;@;@;@;@;@;@;@;@;@;@;@;@;</span>
+    <span class="cake-body">|                             |</span>
+    <span class="green-text">|      LEVEL 22 UNLOCKED      |</span>
+    <span class="cake-body">|                             |</span>
+    <span class="cake-body">|_____________________________|</span>
+        `;
+
+        const galleryHTML = `
+            <div class="gallery-container">
+                <div style="margin-bottom: 10px; color: #d700ff;">[!] HIDDEN MEMORY PARTITION DECRYPTED</div>
+                <div class="gallery-grid">
+                    <div class="photo-frame" id="p1">
+                        <img src="anusha_standing.jpg" alt="Standing">
+                        <div class="caption">The Queen 👑</div>
+                    </div>
+                    <div class="photo-frame" id="p2">
+                        <img src="us_selfie.jpg" alt="Us">
+                        <div class="caption">Best Duo 😎</div>
+                    </div>
+                    <div class="photo-frame" id="p3">
+                        <img src="anusha_sitting.jpg" alt="Sitting">
+                        <div class="caption">Garden Vibes 🌸</div>
+                    </div>
+                    <div class="photo-frame" id="p4">
+                        <img src="cute_dolls.png" alt="Dolls">
+                        <div class="caption">Too Cute 🧸</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        let lineIndex = 0;
+        let currentSequence = introLines;
+
+        function typeLine() {
+            if (lineIndex < currentSequence.length) {
+                const lineData = currentSequence[lineIndex];
+                const div = document.createElement('div');
+                div.classList.add('line');
+                
+                if (lineData.type === 'input') {
+                    div.innerHTML = `<span class="prompt">admin@birthday-sys:~$</span> ${lineData.text.split('$ ')[1]}`;
+                    div.classList.add('input-line');
+                } else if (lineData.type === 'success') {
+                    div.style.color = '#00ff41';
+                    div.style.fontWeight = 'bold';
+                    div.textContent = lineData.text;
+                } else {
+                    div.textContent = lineData.text;
+                }
+
+                terminal.appendChild(div);
+                terminal.scrollTop = terminal.scrollHeight;
+
+                lineIndex++;
+                setTimeout(typeLine, Math.random() * 500 + 100);
+            } else {
+                if (currentSequence === introLines) {
+                    askPassword();
+                } else {
+                    showCake();
+                }
+            }
+        }
+
+        function askPassword() {
+            const div = document.createElement('div');
+            div.classList.add('line');
+            div.innerHTML = `[sudo] password for admin: <input type="text" id="password-input" autocomplete="off">`;
+            terminal.appendChild(div);
+            terminal.scrollTop = terminal.scrollHeight;
+
+            const input = document.getElementById('password-input');
+            input.focus();
+
+            input.addEventListener('blur', () => input.focus());
+
+            input.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    const typed = this.value;
+                    this.disabled = true;
+
+                    if (typed === CORRECT_PASSWORD) {
+                        lineIndex = 0;
+                        currentSequence = successLines;
+                        typeLine();
+                    } else {
+                        const failDiv = document.createElement('div');
+                        failDiv.classList.add('line');
+                        failDiv.style.color = 'red';
+                        failDiv.textContent = "Access Denied: Incorrect Password.";
+                        terminal.appendChild(failDiv);
+                        
+                        setTimeout(() => {
+                            failDiv.remove(); 
+                            div.remove(); 
+                            askPassword(); 
+                        }, 1000);
+                    }
+                }
+            });
+        }
+
+        function showCake() {
+            const pre = document.createElement('pre');
+            pre.classList.add('ascii-art');
+            pre.innerHTML = cakeArt; 
+            terminal.appendChild(pre);
+            pre.style.display = 'block';
+            
+            terminal.scrollTop = terminal.scrollHeight;
+
+            startConfetti();
+            setTimeout(loadMemories, 2000);
+        }
+
+        function loadMemories() {
+            const loadingMsg = document.createElement('div');
+            loadingMsg.classList.add('line');
+            loadingMsg.innerHTML = `<span class="prompt">admin@birthday-sys:~$</span> Decrypting /memories folder...`;
+            terminal.appendChild(loadingMsg);
+            terminal.scrollTop = terminal.scrollHeight;
+
+            setTimeout(() => {
+                const galleryWrapper = document.createElement('div');
+                galleryWrapper.innerHTML = galleryHTML;
+                terminal.appendChild(galleryWrapper);
+                
+                const container = terminal.querySelector('.gallery-container');
+                container.style.display = 'block';
+                
+                const frames = document.querySelectorAll('.photo-frame');
+                frames.forEach((frame, index) => {
+                    setTimeout(() => {
+                        frame.style.animation = "slideUp 0.8s forwards";
+                    }, index * 300);
+                });
+
+                terminal.scrollTop = terminal.scrollHeight;
+
+            }, 1500);
+        }
+
+        // --- Confetti Logic ---
+        const particles = [];
+        const colors = ['#ffeb3b', '#87ceeb', '#ff69b4', '#ffb7b2', '#00ff41'];
+
+        function startConfetti() {
+            for(let i=0; i<150; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: Math.random() * 5 + 2,
+                    speed: Math.random() * 3 + 2,
+                    angle: Math.random() * 2
+                });
+            }
+            animateConfetti();
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, index) => {
+                p.y += p.speed;
+                p.x += Math.sin(p.angle);
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                if (p.y > canvas.height) particles[index].y = -10;
+            });
+            requestAnimationFrame(animateConfetti);
+        }
+
+        setTimeout(typeLine, 1000);
+
+    </script>
+</body>
+</html>
